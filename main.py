@@ -36,5 +36,4 @@ def on_motion(event):
     mouse_x = event.x
     mouse_y = event.y
 
-
 main()
