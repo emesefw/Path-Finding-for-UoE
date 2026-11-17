@@ -19,8 +19,17 @@ class Bg: # testing class
             self.x + self.r, self.y + self.r
         )
 
-class Background:
+class Display:
+    def __init__(self, window_width: int, window_height: int):
+        ''''''
+
+    def resize(self):
+        '''resize image to screen resolution'''
+        
+
+class Background(Display):
     def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
+        super().__init__(window_width, window_height)
         self.image_file = tk.PhotoImage(file = "res/image/Uni-logo-EDINBURGH_730x290.png")
         self.image_file_scaled = self.image_file.zoom(1,1) # Create an image that is dimension(x * xi, y * yi) as the initial dimension(xi, yi), only int
         #self.image_display = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_file_scaled)
@@ -35,8 +44,9 @@ class Background:
     def show(self, canvas: tk.Canvas):
         canvas.itemconfig(self.image_display, state = "noremal")
 
-class Menu:
+class Menu(Display):
     def __init__(self, window_width: int, window_height: int):
+        super().__init__(window_width, window_height)
         self.choice: list = ["","",""]
         self.end_state = False
 
