@@ -4,8 +4,9 @@ import display
 # System setup variables
 root: tk.Tk
 canvas: tk.Canvas
-window_width: int = 1024
-window_height: int = 512
+window_scale_factor: int = 90
+window_width: int = 16 * window_scale_factor
+window_height: int = 9 * window_scale_factor
 FPS: int = 10
 interval: int = int(1000/FPS) # Since .after(ms: int) is in milliseconds
 
@@ -16,6 +17,7 @@ mouse_y: int = 0
 # System functionality variables
 state: int = 1
 bg: display.Bg
+background: display.Background
 menu: display.Menu
 
 # Entry point
@@ -28,7 +30,7 @@ def main():
     root.resizable(False, False)
 
     # setting up a canvas
-    canvas = tk.Canvas(root, width = window_width, height = window_height, bg = "Gray")
+    canvas = tk.Canvas(root, width = window_width, height = window_height, bg = "white")
     canvas.pack()
 
     # Bind add events' callback
@@ -48,12 +50,13 @@ def update(root: tk.Tk):
         case 1:
             '''user input'''
             canvas.delete("hud")
-            bg.update(canvas)
+            #bg.update(canvas)
             canvas.create_text(mouse_x, mouse_y, text = "", fill = "black", tags = "hud")
-            
+
             menu.selection() # check for user input
             if menu.end_state == True:
                 state = 2
+                background.hide(canvas)
                 menu.hide() # hide the menu from previous state
         case 2:
             '''generate plan'''
@@ -70,8 +73,9 @@ def update(root: tk.Tk):
 
 def init():
     '''initialise variables'''
-    global bg, canvas, window_width, window_width, menu
-    bg = display.Bg(canvas, x = window_width/2, y = window_height/2, r = 10)
+    global bg, background, canvas, window_width, window_width, menu
+    #bg = display.Bg(canvas, x = window_width/2, y = window_height/2, r = 10)
+    background = display.Background(canvas, window_width, window_height)
     menu = display.Menu(window_width, window_height)
 
 def on_motion(event):
