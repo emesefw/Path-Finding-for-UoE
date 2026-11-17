@@ -22,18 +22,48 @@ class Bg: # testing class
 class Display:
     def __init__(self, window_width: int, window_height: int):
         ''''''
+        self.window_width = window_width
+        self.window_height = window_height
 
-    def resize(self):
+    def resize(self, image: tk.PhotoImage, image_width: int, image_height: int, sf: float = 1, scalling_bias: float = 0):
         '''resize image to screen resolution'''
+        flag: bool = False
+        x_difference: int = 0
+        y_difference: int = 0
+        largest_difference: int
+        scalling_factor: float
+
+        if image_width > self.window_width: # case width of image > width of window
+            x_difference = image_width - self.window_width
+            flag = True
+        if image_height > self.window_height: # case height of image > that of the window
+            y_difference = image_height - self.window_height
+            flag = True
+
+        if flag == True:
+            if x_difference > y_difference: # work out the larger difference
+                largest_difference = x_difference
+                scalling_factor = 1 - largest_difference/image_width # find the multiplying factor to original image
+            else:
+                largest_difference = y_difference
+                scalling_factor = 1 - largest_difference/image_height
+            if sf != 1 and round(sf, 1) != 0:
+                scalling_factor = round(sf * (1 + scalling_bias), 1)
+            else:
+                scalling_factor = round(scalling_factor * (1 + scalling_bias), 1) # round to 1 decimal place
+            return image.zoom(int(scalling_factor * 10)).subsample(10)
         
+        else:
+            return image # no change to image
+
 
 class Background(Display):
     def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
         super().__init__(window_width, window_height)
-        self.image_file = tk.PhotoImage(file = "res/image/Uni-logo-EDINBURGH_730x290.png")
-        self.image_file_scaled = self.image_file.zoom(1,1) # Create an image that is dimension(x * xi, y * yi) as the initial dimension(xi, yi), only int
-        #self.image_display = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_file_scaled)
-        self.image_display = canvas.create_image(320, 110, image = self.image_file_scaled)
+        self.image_file = tk.PhotoImage(file = "res/image/edinburgh_map_black_and_white_(3600x2700).png")
+        self.image_file_scaled = self.resize(self.image_file, self.image_file.width(), self.image_file.height(), scalling_bias = -0.5)
+        self.image_display = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_file_scaled)
+        #self.image_display = canvas.create_image(320, 110, image = self.image_file_scaled)
 
     def update(self):
         '''update background in case i need it'''
