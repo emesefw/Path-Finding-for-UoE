@@ -7,7 +7,7 @@ canvas: tk.Canvas
 window_scale_factor: int = 90
 window_width: int = 16 * window_scale_factor
 window_height: int = 9 * window_scale_factor
-FPS: int = 10
+FPS: int = 30
 interval: int = int(1000/FPS) # Since .after(ms: int) is in milliseconds
 
 # System input variables
@@ -16,8 +16,6 @@ mouse_y: int = 0
 
 # System functionality variables
 state: int = 1
-bg: display.Bg
-background: display.Background
 menu: display.Menu
 
 # Entry point
@@ -44,20 +42,18 @@ def main():
 # Main loop
 def update(root: tk.Tk):
     '''update function'''
-    global state, canvas, bg
+    global state, canvas
 
     match state:
         case 1:
             '''user input'''
-            canvas.delete("hud")
-            #bg.update(canvas)
-            canvas.create_text(mouse_x, mouse_y, text = "", fill = "black", tags = "hud")
+            canvas.delete("hud") # DEBUG
+            canvas.create_text(mouse_x, mouse_y, text = f'x:{mouse_x}, y:{mouse_y}', fill = "black", tags = "hud") # DEBUG
 
             menu.selection() # check for user input
             if menu.end_state == True:
                 state = 2
-                background.hide(canvas)
-                menu.hide() # hide the menu from previous state
+                menu.hide(canvas) # hide the menu from previous state
         case 2:
             '''generate plan'''
             print("state 2")
@@ -73,10 +69,10 @@ def update(root: tk.Tk):
 
 def init():
     '''initialise variables'''
-    global bg, background, canvas, window_width, window_width, menu
+    global canvas, window_width, window_width, menu
     #bg = display.Bg(canvas, x = window_width/2, y = window_height/2, r = 10)
-    background = display.Background(canvas, window_width, window_height)
-    menu = display.Menu(window_width, window_height)
+    #background = display.Background(canvas, window_width, window_height)
+    menu = display.Menu(canvas, window_width, window_height)
 
 def on_motion(event):
     global mouse_x, mouse_y

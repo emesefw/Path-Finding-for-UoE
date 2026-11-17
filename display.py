@@ -56,29 +56,14 @@ class Display:
         else:
             return image # no change to image
 
-
-class Background(Display):
-    def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
-        super().__init__(window_width, window_height)
-        self.image_file = tk.PhotoImage(file = "res/image/edinburgh_map_black_and_white_(3600x2700).png")
-        self.image_file_scaled = self.resize(self.image_file, self.image_file.width(), self.image_file.height(), scalling_bias = -0.5)
-        self.image_display = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_file_scaled)
-        #self.image_display = canvas.create_image(320, 110, image = self.image_file_scaled)
-
-    def update(self):
-        '''update background in case i need it'''
-
-    def hide(self, canvas: tk.Canvas):
-        canvas.itemconfig(self.image_display, state = "hidden")
-
-    def show(self, canvas: tk.Canvas):
-        canvas.itemconfig(self.image_display, state = "noremal")
-
 class Menu(Display):
-    def __init__(self, window_width: int, window_height: int):
+    def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
         super().__init__(window_width, window_height)
         self.choice: list = ["","",""]
         self.end_state = False
+
+        self.image_file = tk.PhotoImage(file = "res/image/Uni-logo-EDINBURGH_730x290.png")
+        self.image_display = canvas.create_image(320, 110, image = self.image_file)
 
         self.building = ttk.Combobox(
             state = "readonly",
@@ -97,7 +82,7 @@ class Menu(Display):
             command = self.pressed
         )
 
-        self.show(window_width, window_height)
+        self.show(canvas, window_width, window_height)
 
     def selection(self):
         '''output choices'''
@@ -112,21 +97,22 @@ class Menu(Display):
         else:
             self.end_state = True
         
-    def hide(self):
-        print(self.next_button.winfo_manager())
+    def hide(self, canvas: tk.Canvas):
+        canvas.itemconfig(self.image_display, state = "hidden")
+
         self.building.place_forget()
         self.floor.place_forget()
         self.room.place_forget()
         self.next_button.place_forget()
 
-    def show(self, window_width: int, window_height: int):
+    def show(self, canvas: tk.Canvas, window_width: int, window_height: int):
         margin: int = 10
         splitting_factor_x: int = 4
         splitting_factor_y: int = 4
+
+        canvas.itemconfig(self.image_display, state = "normal")
 
         self.building.place(x = margin, y = int(1 * window_height/splitting_factor_y))
         self.floor.place(x = int(1 * window_width/splitting_factor_x) + margin, y = int(1 * window_height/splitting_factor_y))
         self.room.place(x = int(2 * window_width/splitting_factor_x) + margin, y = int(1 * window_height/splitting_factor_y))
         self.next_button.place(x = int(3 * window_width/splitting_factor_x) + margin, y = int(1 * window_height/splitting_factor_y))
-
-        
