@@ -49,8 +49,6 @@ class Display:
         print(f'{scalling_command} is multiplied by sf: {scale}')
         return image_out
 
-
-
 class Menu(Display):
     def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
         super().__init__(window_width, window_height)
