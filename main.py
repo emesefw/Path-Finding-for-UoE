@@ -51,7 +51,7 @@ def update(root: tk.Tk):
             canvas.delete("hud") # DEBUG
             canvas.create_text(mouse_x, mouse_y, text = f'x:{mouse_x}, y:{mouse_y}', fill = "black", tags = "hud") # DEBUG
 
-            menu.show(canvas, window_width, window_width)
+            menu.show(canvas, window_width, window_height)
             menu.selection() # check for user input
             if menu.end_state == True:
                 state = 3
@@ -75,15 +75,15 @@ def update(root: tk.Tk):
 def init():
     '''initialise variables'''
     global canvas, window_width, window_width, menu, projector
-    #bg = display.Bg(canvas, x = window_width/2, y = window_height/2, r = 10)
-    #background = display.Background(canvas, window_width, window_height)
+
     menu = display.Menu(canvas, window_width, window_height)
-    menu.hide(canvas)
     projector = display.Projector(canvas, window_width, window_height)
+    menu.hide(canvas)
     projector.hide(canvas)
 
 def on_motion(event):
     global mouse_x, mouse_y
+    
     mouse_x = event.x
     mouse_y = event.y
 

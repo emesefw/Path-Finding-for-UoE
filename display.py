@@ -34,7 +34,7 @@ class Display:
         
         match(scalling_command):
             case "width":
-                self.window_width / image.width
+                scale = self.window_width / image.width
             case "height":
                 scale = self.window_height / image.height
             case "both":
@@ -55,10 +55,8 @@ class Menu(Display):
         self.choice: list = ["","",""]
         self.end_state = False
 
-        image_file = tk.PhotoImage(file = "res/image/menu/Uni-logo-EDINBURGH_730x290.png")
-        #self.image_scaled = self.resize(image = image_file, scale_reference = "width", image_width = image_file.width(), image_height = image_file.height(), scalling_bias = -0.5)
-        self.image_scaled = self.rescale("res/image/menu/Uni-logo-EDINBURGH_730x290.png", "original")
-        self.image_display = canvas.create_image(320, 110, image = self.image_scaled)
+        self.logo_image = self.rescale("res/image/menu/Uni-logo-EDINBURGH_730x290.png", "original")
+        self.logo_image_id = canvas.create_image(320, 110, image = self.logo_image)
 
         self.building = ttk.Combobox(
             state = "readonly",
@@ -82,7 +80,6 @@ class Menu(Display):
     def selection(self):
         '''output choices'''
         self.choice = [self.building.get(), self.floor.get(), self.room.get()]
-        #print(self.choice) # DEBUG
     
     def pressed(self):
         '''update state if pressed go in correct condition'''
@@ -93,7 +90,7 @@ class Menu(Display):
             self.end_state = True
         
     def hide(self, canvas: tk.Canvas):
-        canvas.itemconfig(self.image_display, state = "hidden")
+        canvas.itemconfig(self.logo_image_id, state = "hidden")
 
         self.building.place_forget()
         self.floor.place_forget()
@@ -105,7 +102,7 @@ class Menu(Display):
         splitting_factor_x: int = 4
         splitting_factor_y: int = 4
 
-        canvas.itemconfig(self.image_display, state = "normal")
+        canvas.itemconfig(self.logo_image_id, state = "normal")
 
         self.building.place(x = margin, y = int(1 * window_height/splitting_factor_y))
         self.floor.place(x = int(1 * window_width/splitting_factor_x) + margin, y = int(1 * window_height/splitting_factor_y))
@@ -115,33 +112,20 @@ class Menu(Display):
 class Projector(Display):
     def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
         super().__init__(window_width, window_height)
-        #print("start to initialise projector") # DEBUG
-
         self.image_list: list # list of imaged pre loaded before execution
-        image_file = tk.PhotoImage(file = "res/image/panorama/test.png") # DEBUG
-        self.image_file_icon = tk.PhotoImage(file = "res/image/menu/pc-portrait-red.png")
-
-        #print("is it here that takes long?") # DEBUG
-
-        #image_scaled = self.resize(image = image_file, scale_reference = "height", image_height = image_file.height(), scalling_bias = 0.5) # DEBUG
-        self.image_scaled = self.rescale("res/image/panorama/test.png", "height") # DEBUG
-
-        #print("or perhaps the resize method?") # DEBUG
-
-        #self.image_projected = canvas.create_image(int(window_width/2), int(window_height/2), image = image_scaled) # in real thing append into list
-        self.image_projected = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_scaled)
-        self.image_projected_icon = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_file_icon)
-
-        #print("projecter initialised") # DEBUG
+        self.image_file_icon = tk.PhotoImage(file = "res/image/menu/pc-portrait-red.png") # FUN
+        self.tes_image = self.rescale("res/image/panorama/test.png", "original") # DEBUG
+        self.test_image_id = canvas.create_image(int(window_width/2), int(window_height/2), image = self.tes_image)
+        self.icon_image_id = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_file_icon)
 
     def update(self, canvas: tk.Canvas, x : int, y: int):
-        canvas.coords(self.image_projected_icon, x, y)
+        canvas.coords(self.icon_image_id, x, y)
 
     def hide(self, canvas: tk.Canvas):
-        canvas.itemconfig(self.image_projected, state = "hidden")
-        canvas.itemconfig(self.image_projected_icon, state = "hidden")
+        canvas.itemconfig(self.test_image_id, state = "hidden")
+        canvas.itemconfig(self.icon_image_id, state = "hidden")
 
     def show(self, canvas: tk.Canvas):
-        canvas.itemconfig(self.image_projected, state = "normal")
-        canvas.itemconfig(self.image_projected_icon, state = "normal")
+        canvas.itemconfig(self.test_image_id, state = "normal")
+        canvas.itemconfig(self.icon_image_id, state = "normal")
 
