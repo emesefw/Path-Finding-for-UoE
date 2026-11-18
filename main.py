@@ -15,7 +15,7 @@ mouse_x: int = 0
 mouse_y: int = 0
 
 # System functionality variables
-state: int = 3
+state: int = 1
 menu: display.Menu
 projector: display.Projector
 

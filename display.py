@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import time # BEGUD
+from PIL import Image, ImageTk # terminal: python3 -m pip install pillow (for macOS), python -m pip install pillow (for windows)
 
 class Bg: # testing class
     def __init__(self, canvas: tk.Canvas, x: int = 0, y: int = 0, r: float = 100):
@@ -26,75 +26,28 @@ class Display:
         self.window_width = window_width
         self.window_height = window_height
 
-    def resize(self, image: tk.PhotoImage, image_width: int = 0, image_height: int = 0, scale_reference: str = "none", sf: float = 1, scalling_bias: float = 0):
-        '''resize image to screen resolution'''
-        flag: bool = False
-        x_difference: int = 0
-        y_difference: int = 0
-        largest_difference: int
-        scalling_factor: float
+    def rescale(self, file_path: str, scalling_command: str = "original", scalling_bias: float = 0) -> ImageTk.PhotoImage:
+        scale: float
+        new_size: tuple
+
+        image = Image.open(file_path)
         
-        match(scale_reference):
-            case "none": # case where neither side is prefered
-                if image_width > self.window_width: # case width of image > width of window
-                    x_difference = image_width - self.window_width
-                    flag = True
-                if image_height > self.window_height: # case height of image > that of the window
-                    y_difference = image_height - self.window_height
-                    flag = True
+        match(scalling_command):
             case "width":
-                x_difference = image_width - self.window_width
-                flag = True
+                self.window_width / image.width
             case "height":
-                y_difference = image_height - self.window_height
-                flag = True
+                scale = self.window_height / image.height
+            case "both":
+                scale = min(self.window_width / image.width, self.window_height / image.height)
+            case "original":
+                scale = 1
 
-        if flag == True:
-            match(scale_reference):
-                case "none": # case where neither side is prefered
-                    if x_difference > y_difference: # work out the larger difference
-                        largest_difference = x_difference
-                        scalling_factor = 1 - largest_difference/image_width # find the multiplying factor to original image
-                    else:
-                        largest_difference = y_difference
-                        scalling_factor = 1 - largest_difference/image_height
-                case "width":
-                    largest_difference = x_difference
-                    scalling_factor = 1 - largest_difference/image_width
-                case "height":
-                    largest_difference = y_difference
-                    scalling_factor = 1 - largest_difference/image_height
+        new_size = (int(image.width * scale * (1 + scalling_bias)), int(image.height * scale * (1 + scalling_bias)))
+        image = image.resize(new_size, Image.LANCZOS) # Resampling.NEAREST, Resampling.BOX, Resampling.BILINEAR, Resampling.HAMMING, Resampling.BICUBIC, Resampling.LANCZOS, Resampling.MKS2013, or Resampling.MKS2021
+        image_out = ImageTk.PhotoImage(image)
 
-            if sf != 1 and round(sf, 1) != 0:
-                scalling_factor = round(sf * (1 + scalling_bias), 1)
-            else:
-                scalling_factor = round(scalling_factor * (1 + scalling_bias), 1) # round to 1 decimal place
-
-            print(f"return scaled image, sf:{scalling_factor}") # DEBUG
-                
-            return image.zoom(int(scalling_factor * 10)).subsample(10)
-        
-        else:
-            print("not scaled") # DEBUG
-            return image # no change to image
-
-    def rescale(self, image: tk.PhotoImage, scalling_side: str = "none", scalling_bias: float = 0) -> tk.PhotoImage:
-        sf: float
-        
-        match(scalling_side):
-            case "width":
-                diff = image.width() - self.window_width
-                sf = 1 - diff / image.width()
-            case "height":
-                diff = image.height() - self.window_height
-                sf = 1 - diff / image.height()
-            case "none":
-                print("failed to scale, choose a either 'width' or 'height'.")
-                return image
-
-        sf = round(sf * (1 + scalling_bias), 1)
-        print(f'{scalling_side} is multiplied by sf: {sf}')
-        return image.zoom(int(sf * 10)).subsample(10)
+        print(f'{scalling_command} is multiplied by sf: {scale}')
+        return image_out
 
 
 
@@ -106,7 +59,7 @@ class Menu(Display):
 
         image_file = tk.PhotoImage(file = "res/image/menu/Uni-logo-EDINBURGH_730x290.png")
         #self.image_scaled = self.resize(image = image_file, scale_reference = "width", image_width = image_file.width(), image_height = image_file.height(), scalling_bias = -0.5)
-        self.image_scaled = self.rescale(image_file, "none")
+        self.image_scaled = self.rescale("res/image/menu/Uni-logo-EDINBURGH_730x290.png", "original")
         self.image_display = canvas.create_image(320, 110, image = self.image_scaled)
 
         self.building = ttk.Combobox(
@@ -173,7 +126,7 @@ class Projector(Display):
         #print("is it here that takes long?") # DEBUG
 
         #image_scaled = self.resize(image = image_file, scale_reference = "height", image_height = image_file.height(), scalling_bias = 0.5) # DEBUG
-        self.image_scaled = self.rescale(image_file, "height", -0.7) # DEBUG
+        self.image_scaled = self.rescale("res/image/panorama/test.png", "height") # DEBUG
 
         #print("or perhaps the resize method?") # DEBUG
 
