@@ -42,7 +42,7 @@ class Display:
                 scale = 1
             
         new_size = (int(image.width * scale * (1 + scalling_bias)), int(image.height * scale * (1 + scalling_bias)))
-        image = image.resize(new_size, Image.LANCZOS) # Resampling.NEAREST, Resampling.BOX, Resampling.BILINEAR, Resampling.HAMMING, Resampling.BICUBIC, Resampling.LANCZOS, Resampling.MKS2013, or Resampling.MKS2021
+        image = image.resize(new_size, Image.Resampling.LANCZOS) # Resampling.NEAREST, Resampling.BOX, Resampling.BILINEAR, Resampling.HAMMING, Resampling.BICUBIC, Resampling.LANCZOS, Resampling.MKS2013, or Resampling.MKS2021
         image_out = ImageTk.PhotoImage(image)
 
         print(f'{scalling_command} is multiplied by sf: {scale}')
@@ -111,39 +111,58 @@ class Menu(Display):
 class Projector(Display):
     def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
         super().__init__(window_width, window_height)
-        self.image_list: list # list of imaged pre loaded before execution
+        self.image_x_coor: int = 100
+        self.image_y_coor: int = 100
+        self.image_r_edge: int = 0
+
+        self.test_image: ImageTk.PhotoImage
+        self.test_image_back: ImageTk.PhotoImage
+        self.test_image_back_id = canvas.create_image(self.image_x_coor, self.image_y_coor, anchor = "nw")
+        self.test_image_id = canvas.create_image(self.image_x_coor, self.image_y_coor, anchor = "nw")
+
         self.image_file_icon = tk.PhotoImage(file = "res/image/menu/pc-portrait-red.png") # FUN
-        #self.tes_image = self.rescale("res/image/panorama/test.png", "original") # DEBUG
-        self.test_image_id = canvas.create_image(int(window_width/2), int(window_height/2))
-        self.test_image = self.project(canvas, Image.open("res/image/panorama/test.png"), bias = 0.75)
         self.icon_image_id = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_file_icon)
 
     def update(self, canvas: tk.Canvas, x : int, y: int):
         canvas.coords(self.icon_image_id, x, y)
         #canvas.coords(self.test_image_id, x, y)
+
         self.project(canvas, Image.open("res/image/panorama/test.png"), x, 0.75)
+        canvas.coords(self.test_image_back_id, self.image_r_edge, self.image_y_coor)
 
-    def project(self, canvas: tk.Canvas, original: Image.ImageFile, off_x = 0, bias: float = 1):
-        
-        print(off_x) # DEBUG
 
+    def project(self, canvas: tk.Canvas, original: Image.ImageFile, off_l = 0, bias: float = 1):
         ratio = self.window_height / original.height # 900 / 200 = 4
-        frame_width = self.window_width / ratio # 1200 / 4 = 300
-        off_x = max(0, min(off_x, original.width - frame_width)) # make sure frame dosn't go out of image, will be changed later
-        x2 = off_x + frame_width
-        y1 = 0
-        y2 = y1 + original.height
+        frame_width = int(self.window_width / ratio) # 1200 / 4 = 300
 
-        crop: Image = original.crop((off_x, y1, x2, y2)) # left, top, right, bottom
-        crop = crop.resize((int(self.window_width * bias), int(self.window_height * bias)), Image.LANCZOS)
-        self.image = ImageTk.PhotoImage(crop)
-        canvas.itemconfig(self.test_image_id, image = self.image)
+        off_l = off_l % original.width
+        off_r = min(off_l + frame_width, original.width)
+        frame_1 = (off_l, 0, min(off_l + frame_width, original.width), original.height)
+        frame_2_width = abs(off_l + frame_width - original.width)
+        frame_2 = (0, 0, frame_2_width, original.height)
+
+        crop: Image = original.crop(frame_1) # left, top, right, bottom
+        crop = crop.resize((int(min(self.window_width, ratio * (off_r - off_l)) * bias), int(self.window_height * bias)), Image.LANCZOS)
+        self.test_image = ImageTk.PhotoImage(crop)
+        canvas.itemconfig(self.test_image_id, image = self.test_image)
+
+        image_width = ratio * bias * frame_width
+        image_2_width = image_width - (ratio * (off_r - off_l) * bias)
+        if frame_2_width > 0:
+            crop = original.crop(frame_2)
+            crop = crop.resize((max(1, int(image_2_width)), int(self.window_height * bias)), Image.LANCZOS)
+            self.test_image_back = ImageTk.PhotoImage(crop)
+            canvas.itemconfig(self.test_image_back_id, image = self.test_image_back)
+
+            self.image_r_edge = int(image_width - image_2_width) + self.image_x_coor
 
     def hide(self, canvas: tk.Canvas):
         canvas.itemconfig(self.test_image_id, state = "hidden")
+        canvas.itemconfig(self.test_image_back_id, state = "hidden")
         canvas.itemconfig(self.icon_image_id, state = "hidden")
 
     def show(self, canvas: tk.Canvas):
         canvas.itemconfig(self.test_image_id, state = "normal")
+        canvas.itemconfig(self.test_image_back_id, state = "normal")
         canvas.itemconfig(self.icon_image_id, state = "normal")
 

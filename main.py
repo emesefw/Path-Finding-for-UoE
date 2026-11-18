@@ -40,7 +40,6 @@ def main():
     update(root)
     root.mainloop() # run once, keep thread alive, waiting for callbacks and events until window closed
 
-# Main loop
 def update(root: tk.Tk):
     '''update function'''
     global state, canvas
