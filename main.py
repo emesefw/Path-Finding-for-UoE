@@ -15,7 +15,7 @@ mouse_x: int = 0
 mouse_y: int = 0
 
 # System functionality variables
-state: int = 1
+state: int = 3
 menu: display.Menu
 projector: display.Projector
 
@@ -61,7 +61,7 @@ def update(root: tk.Tk):
             print("state 2")
         case 3:
             '''execution'''
-            print("state 3")
+            #print("state 3") # DEBUG
             projector.show(canvas)
             projector.update(canvas, mouse_x, mouse_y)
         case 4:
@@ -69,7 +69,7 @@ def update(root: tk.Tk):
         case 0:
             root.destroy()
 
-    print(f'x:{mouse_x},y:{mouse_y}')# DEBUG
+    #print(f'x:{mouse_x},y:{mouse_y}')# DEBUG
     root.after(interval, update, root) # put update() on wait while utilising main thread for others
 
 def init():
