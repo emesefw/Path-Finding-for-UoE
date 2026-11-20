@@ -15,7 +15,7 @@ mouse_x: int = 0
 mouse_y: int = 0
 
 # System functionality variables
-state: int = 3
+state: int = 1
 menu: display.Menu
 projector: display.Projector
 
@@ -51,7 +51,7 @@ def update(root: tk.Tk):
             canvas.create_text(mouse_x, mouse_y, text = f'x:{mouse_x}, y:{mouse_y}', fill = "black", tags = "hud") # DEBUG
 
             menu.show(canvas, window_width, window_height)
-            menu.selection() # check for user input
+            menu.read_input() # check for user input
             if menu.end_state == True:
                 state = 3
                 menu.hide(canvas) # hide the menu from previous state

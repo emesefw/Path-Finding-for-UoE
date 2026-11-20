@@ -48,41 +48,54 @@ class Display:
         print(f'{scalling_command} is multiplied by sf: {scale}')
         return image_out
 
+    def find_center(self, image_width, image_height) -> tuple:
+        return ((self.window_width / 2) - (image_width / 2), (self.window_height / 2) - (image_height / 2))
+
 class Menu(Display):
     def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
         super().__init__(window_width, window_height)
-        self.choice: list = ["","",""]
+        self.default_text = [["BUILDING you are in","FLOOR you are on","ROOM you are in"],["destination BUILDING","destination FLOOR","destination ROOM"]]
+        self.user_input: list = self.default_text # array of 2 rows and 3 coloums
         self.end_state = False
 
         self.logo_image = self.rescale("res/image/menu/Uni-logo-EDINBURGH_730x290.png", "original")
         self.logo_image_id = canvas.create_image(320, 110, image = self.logo_image)
 
-        self.building = ttk.Combobox(
-            state = "readonly",
-            values = ["load","all","options","here"] # Read from file to optain all options and create a list
-        )
-        self.floor = ttk.Combobox(
-            state = "readonly",
-            values = ["load","all","options","here"] # Read from file to optain all options and create a list
-        )
-        self.room = ttk.Combobox(
-            state = "readonly",
-            values = ["load","all","options","here"] # Read from file to optain all options and create a list
-        )
-        self.next_button = ttk.Button(
-            text = "Go",
-            command = self.pressed
-        )
+        self.origin: list = [0,0,0]
+        self.destination: list = [0,0,0]
 
+        self.origin[0] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"]) # Read from file to optain all options and create a list
+        self.origin[0].set("building you are from")
+        self.origin[1] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
+        self.origin[2] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
+        self.destination[0] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
+        self.destination[1] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
+        self.destination[2] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
+
+        self.next_button = ttk.Button(text = "Go",  command = self.pressed)
+        self.clear_button = ttk.Button(text = "Clear all", command = self.deselect)
+
+        self.deselect()
         self.show(canvas, window_width, window_height)
 
-    def selection(self):
+    def read_input(self):
         '''output choices'''
-        self.choice = [self.building.get(), self.floor.get(), self.room.get()]
+        self.user_input = [[self.origin[0].get(), self.origin[1].get(), self.origin[2].get()],[self.destination[0].get(), self.destination[1].get(), self.destination[2].get()]]
+        self.user_input[0] = [self.origin[0].get(), self.origin[1].get(), self.origin[2].get()]
+        self.user_input[1] = [self.destination[0].get(), self.destination[1].get(), self.destination[2].get()]
+
+    def deselect(self):
+        self.origin[0].set(self.default_text[0][0])
+        self.origin[1].set(self.default_text[0][1])
+        self.origin[2].set(self.default_text[0][2])
+        self.destination[0].set(self.default_text[1][0])
+        self.destination[1].set(self.default_text[1][1])
+        self.destination[2].set(self.default_text[1][2])
     
     def pressed(self):
         '''update state if pressed go in correct condition'''
-        if self.choice[0] == "" or self.choice[1] == "" or self.choice[2] == "":
+        if self.user_input[0][0] == self.default_text[0][0] or self.user_input[0][1] == self.default_text[0][1] or self.user_input[0][2] == self.default_text[0][2] or self.user_input[1][0] == self.default_text[1][0] or self.user_input[1][1] == self.default_text[1][1] or self.user_input[1][2] == self.default_text[1][2]:
+            print(self.user_input) # DEBUG
             messagebox.showinfo(title = "Error message -_-'", message = "please enter all the fields required: \n(building, floor, room)")
             self.end_state =  False
         else:
@@ -91,28 +104,38 @@ class Menu(Display):
     def hide(self, canvas: tk.Canvas):
         canvas.itemconfig(self.logo_image_id, state = "hidden")
 
-        self.building.place_forget()
-        self.floor.place_forget()
-        self.room.place_forget()
+        self.origin[0].place_forget()
+        self.origin[1].place_forget()
+        self.origin[2].place_forget()
+        self.destination[0].place_forget()
+        self.destination[1].place_forget()
+        self.destination[2].place_forget()
         self.next_button.place_forget()
+        self.clear_button.place_forget()
 
     def show(self, canvas: tk.Canvas, window_width: int, window_height: int):
-        margin: int = 10
-        splitting_factor_x: int = 4
-        splitting_factor_y: int = 4
+        off_x: int = 10
+        off_y: int = 100
+        splitting_factor_x: int = 5
+        splitting_factor_y: int = 5
 
         canvas.itemconfig(self.logo_image_id, state = "normal")
 
-        self.building.place(x = margin, y = int(1 * window_height/splitting_factor_y))
-        self.floor.place(x = int(1 * window_width/splitting_factor_x) + margin, y = int(1 * window_height/splitting_factor_y))
-        self.room.place(x = int(2 * window_width/splitting_factor_x) + margin, y = int(1 * window_height/splitting_factor_y))
-        self.next_button.place(x = int(3 * window_width/splitting_factor_x) + margin, y = int(1 * window_height/splitting_factor_y))
+        self.origin[0].place(x = off_x, y = int(1 * window_height/splitting_factor_y) + off_y)
+        self.origin[1].place(x = int(1 * window_width/splitting_factor_x) + off_x, y = int(1 * window_height/splitting_factor_y) + off_y)
+        self.origin[2].place(x = int(2 * window_width/splitting_factor_x) + off_x, y = int(1 * window_height/splitting_factor_y) + off_y)
+        self.destination[0].place(x = off_x, y = int(2 * window_height/splitting_factor_y) + off_y)
+        self.destination[1].place(x = int(1 * window_width/splitting_factor_x) + off_x, y = int(2 * window_height/splitting_factor_y) + off_y)
+        self.destination[2].place(x = int(2 * window_width/splitting_factor_x) + off_x, y = int(2 * window_height/splitting_factor_y) + off_y)
+
+        self.next_button.place(x = int(3 * window_width/splitting_factor_x) + off_x, y = int(2 * window_height/splitting_factor_y) + off_y)
+        self.clear_button.place(x = off_x, y = int(3 * window_height/splitting_factor_y) + off_y)
 
 class Projector(Display):
     def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
         super().__init__(window_width, window_height)
-        self.image_x_coor: int = 100
-        self.image_y_coor: int = 100
+        self.image_x_coor: int = 0
+        self.image_y_coor: int = 0
         self.image_r_edge: int = 0
 
         self.test_image: ImageTk.PhotoImage
@@ -127,11 +150,11 @@ class Projector(Display):
         canvas.coords(self.icon_image_id, x, y)
         #canvas.coords(self.test_image_id, x, y)
 
-        self.project(canvas, Image.open("res/image/panorama/test.png"), x, 0.75)
+        self.wraprojector(canvas, Image.open("res/image/panorama/test.png"), x, 0.75)
         canvas.coords(self.test_image_back_id, self.image_r_edge, self.image_y_coor)
 
 
-    def project(self, canvas: tk.Canvas, original: Image.ImageFile, off_l = 0, bias: float = 1):
+    def wraprojector(self, canvas: tk.Canvas, original: Image.ImageFile, off_l = 0, bias: float = 1):
         ratio = self.window_height / original.height # 900 / 200 = 4
         frame_width = int(self.window_width / ratio) # 1200 / 4 = 300
 
