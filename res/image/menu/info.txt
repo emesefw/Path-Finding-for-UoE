@@ -1,0 +1,6 @@
+Appleton Tower,G,Lecture Theatre 1
+Appleton Tower,G,Lecture Theatre 2
+Appleton Tower,G,Cafe
+Appleton Tower,1,Lecture Theatre 3
+Appleton Tower,1,Lecture Theatre 4
+Main Library,G,Cafe

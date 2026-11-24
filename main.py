@@ -47,8 +47,10 @@ def update(root: tk.Tk):
     match state:
         case 1:
             '''user input'''
-            canvas.delete("hud") # DEBUG
-            canvas.create_text(mouse_x, mouse_y, text = f'x:{mouse_x}, y:{mouse_y}', fill = "black", tags = "hud") # DEBUG
+            menu.update()
+
+            #canvas.delete("hud") # DEBUG
+            #canvas.create_text(mouse_x, mouse_y, text = f'x:{mouse_x}, y:{mouse_y}', fill = "black", tags = "hud") # DEBUG
 
             menu.show(canvas, window_width, window_height)
             menu.read_input() # check for user input

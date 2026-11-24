@@ -1,6 +1,9 @@
 import tkinter as tk
+import handler
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk # terminal: python3 -m pip install pillow (for macOS), python -m pip install pillow (for windows)
+
+fh = handler.FileHandler()
 
 class Bg: # testing class
     def __init__(self, canvas: tk.Canvas, x: int = 0, y: int = 0, r: float = 100):
@@ -33,7 +36,6 @@ class Display:
         match(scalling_command):
             case "width":
                 scale = self.window_width / image.width
-
             case "height":
                 scale = self.window_height / image.height
             case "both":
@@ -52,39 +54,76 @@ class Display:
         return ((self.window_width / 2) - (image_width / 2), (self.window_height / 2) - (image_height / 2))
 
 class Menu(Display):
+    global fh
+
     def __init__(self, canvas: tk.Canvas, window_width: int, window_height: int):
         super().__init__(window_width, window_height)
         self.default_text = [["BUILDING you are in","FLOOR you are on","ROOM you are in"],["destination BUILDING","destination FLOOR","destination ROOM"]]
         self.user_input: list = self.default_text # array of 2 rows and 3 coloums
+        self.list_o: list = [[],[],[]]
+        self.list_d: list = [[],[],[]]
         self.end_state = False
 
         self.logo_image = self.rescale("res/image/menu/Uni-logo-EDINBURGH_730x290.png", "original")
         self.logo_image_id = canvas.create_image(320, 110, image = self.logo_image)
 
-        self.origin: list = [0,0,0]
-        self.destination: list = [0,0,0]
+        self.origin: list = [0,0,0] # actual boxes for origin
+        self.destination: list = [0,0,0] # actual boxes for destination
 
-        self.origin[0] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"]) # Read from file to optain all options and create a list
-        self.origin[0].set("building you are from")
-        self.origin[1] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
-        self.origin[2] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
-        self.destination[0] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
-        self.destination[1] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
-        self.destination[2] = ttk.Combobox(state = "readonly", values = ["load","all","options","here"])
+        self.origin[0] = ttk.Combobox(state = "readonly", values = self.list_o[0]) # Read from file to optain all options and create a list
+        self.origin[1] = ttk.Combobox(state = "readonly", values = self.list_o[1])
+        self.origin[2] = ttk.Combobox(state = "readonly", values = self.list_o[2])
+        self.destination[0] = ttk.Combobox(state = "readonly", values = self.list_d[0])
+        self.destination[1] = ttk.Combobox(state = "readonly", values = self.list_d[1])
+        self.destination[2] = ttk.Combobox(state = "readonly", values = self.list_d[2])
 
-        self.next_button = ttk.Button(text = "Go",  command = self.pressed)
-        self.clear_button = ttk.Button(text = "Clear all", command = self.deselect)
+        self.origin[0].bind("<<ComboboxSelected>>", self.on_selection_o_0)
+        self.origin[1].bind("<<ComboboxSelected>>", self.on_selection_o_1)
+        self.destination[0].bind("<<ComboboxSelected>>", self.on_selection_d_0)
+        self.destination[1].bind("<<ComboboxSelected>>", self.on_selection_d_1)
 
-        self.deselect()
+        self.go_button = ttk.Button(text = "Go",  command = self.pressed)
+        self.clear_button = ttk.Button(text = "Clear all", command = self.clear_all)
+
+        self.clear_all()
         self.show(canvas, window_width, window_height)
 
-    def read_input(self):
-        '''output choices'''
-        self.user_input = [[self.origin[0].get(), self.origin[1].get(), self.origin[2].get()],[self.destination[0].get(), self.destination[1].get(), self.destination[2].get()]]
-        self.user_input[0] = [self.origin[0].get(), self.origin[1].get(), self.origin[2].get()]
-        self.user_input[1] = [self.destination[0].get(), self.destination[1].get(), self.destination[2].get()]
+    def update(self):
+        '''combine the list here'''
+        self.list_o[0] = fh.read_list(field=0, choice=0, reference=self.user_input)
+        self.list_o[1] = fh.read_list(field=1, choice=0, reference=self.user_input)
+        self.list_o[2] = fh.read_list(field=2, choice=0, reference=self.user_input)
 
-    def deselect(self):
+        self.origin[0].configure(values=self.list_o[0])
+        self.origin[1].configure(values=self.list_o[1])
+        self.origin[2].configure(values=self.list_o[2])
+
+        self.list_d[0] = fh.read_list(field=0, choice=1, reference=self.user_input)
+        self.list_d[1] = fh.read_list(field=1, choice=1, reference=self.user_input)
+        self.list_d[2] = fh.read_list(field=2, choice=1, reference=self.user_input)
+
+        self.destination[0].configure(values=self.list_d[0])
+        self.destination[1].configure(values=self.list_d[1])
+        self.destination[2].configure(values=self.list_d[2])
+
+    def read_input(self):
+        self.user_input = [[self.origin[0].get(), self.origin[1].get(), self.origin[2].get()],[self.destination[0].get(), self.destination[1].get(), self.destination[2].get()]]
+
+    def on_selection_o_0(self, event):
+        self.origin[1].set(self.default_text[0][1])
+        self.origin[2].set(self.default_text[0][2])
+
+    def on_selection_o_1(self, event):
+        self.origin[2].set(self.default_text[0][2])
+
+    def on_selection_d_0(self, event):
+        self.destination[1].set(self.default_text[1][1])
+        self.destination[2].set(self.default_text[1][2])
+        
+    def on_selection_d_1(self, event):
+        self.destination[2].set(self.default_text[1][2])
+
+    def clear_all(self):
         self.origin[0].set(self.default_text[0][0])
         self.origin[1].set(self.default_text[0][1])
         self.origin[2].set(self.default_text[0][2])
@@ -93,7 +132,6 @@ class Menu(Display):
         self.destination[2].set(self.default_text[1][2])
     
     def pressed(self):
-        '''update state if pressed go in correct condition'''
         if self.user_input[0][0] == self.default_text[0][0] or self.user_input[0][1] == self.default_text[0][1] or self.user_input[0][2] == self.default_text[0][2] or self.user_input[1][0] == self.default_text[1][0] or self.user_input[1][1] == self.default_text[1][1] or self.user_input[1][2] == self.default_text[1][2]:
             print(self.user_input) # DEBUG
             messagebox.showinfo(title = "Error message -_-'", message = "please enter all the fields required: \n(building, floor, room)")
@@ -110,7 +148,7 @@ class Menu(Display):
         self.destination[0].place_forget()
         self.destination[1].place_forget()
         self.destination[2].place_forget()
-        self.next_button.place_forget()
+        self.go_button.place_forget()
         self.clear_button.place_forget()
 
     def show(self, canvas: tk.Canvas, window_width: int, window_height: int):
@@ -128,7 +166,7 @@ class Menu(Display):
         self.destination[1].place(x = int(1 * window_width/splitting_factor_x) + off_x, y = int(2 * window_height/splitting_factor_y) + off_y)
         self.destination[2].place(x = int(2 * window_width/splitting_factor_x) + off_x, y = int(2 * window_height/splitting_factor_y) + off_y)
 
-        self.next_button.place(x = int(3 * window_width/splitting_factor_x) + off_x, y = int(2 * window_height/splitting_factor_y) + off_y)
+        self.go_button.place(x = int(3 * window_width/splitting_factor_x) + off_x, y = int(2 * window_height/splitting_factor_y) + off_y)
         self.clear_button.place(x = off_x, y = int(3 * window_height/splitting_factor_y) + off_y)
 
 class Projector(Display):
@@ -187,5 +225,5 @@ class Projector(Display):
     def show(self, canvas: tk.Canvas):
         canvas.itemconfig(self.test_image_id, state = "normal")
         canvas.itemconfig(self.test_image_back_id, state = "normal")
-        canvas.itemconfig(self.icon_image_id, state = "normal")
+        #canvas.itemconfig(self.icon_image_id, state = "normal")
 
