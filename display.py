@@ -58,7 +58,7 @@ class Menu(Display):
         self.user_input: list = self.default_text # array of 2 rows and 3 coloums
         self.end_state = False
 
-        self.logo_image = self.rescale("res/image/menu/Uni-logo-EDINBURGH_730x290.png", "original")
+        self.logo_image = self.rescale("Path-Finding-for-UoE/res/image/menu/Uni-logo-EDINBURGH_730x290.png", "original")
         self.logo_image_id = canvas.create_image(320, 110, image = self.logo_image)
 
         self.origin: list = [0,0,0]
@@ -143,14 +143,14 @@ class Projector(Display):
         self.test_image_back_id = canvas.create_image(self.image_x_coor, self.image_y_coor, anchor = "nw")
         self.test_image_id = canvas.create_image(self.image_x_coor, self.image_y_coor, anchor = "nw")
 
-        self.image_file_icon = tk.PhotoImage(file = "res/image/menu/pc-portrait-red.png") # FUN
+        self.image_file_icon = tk.PhotoImage(file = "Path-Finding-for-UoE/res/image/menu/pc-portrait-red.png") # FUN
         self.icon_image_id = canvas.create_image(int(window_width/2), int(window_height/2), image = self.image_file_icon)
 
     def update(self, canvas: tk.Canvas, x : int, y: int):
         canvas.coords(self.icon_image_id, x, y)
         #canvas.coords(self.test_image_id, x, y)
 
-        self.wraprojector(canvas, Image.open("res/image/panorama/test.png"), x, 0.75)
+        self.wraprojector(canvas, Image.open("Path-Finding-for-UoE/res/image/panorama/test.png"), x, 0.75)
         canvas.coords(self.test_image_back_id, self.image_r_edge, self.image_y_coor)
 
 
