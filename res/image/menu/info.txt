@@ -1,6 +1,14 @@
+Appleton Tower,-1,Gate
+Appleton Tower,G,Gate
+Appleton Tower,G,Elevator
 Appleton Tower,G,Lecture Theatre 1
 Appleton Tower,G,Lecture Theatre 2
 Appleton Tower,G,Cafe
+Appleton Tower,1,Elevator
 Appleton Tower,1,Lecture Theatre 3
 Appleton Tower,1,Lecture Theatre 4
+Main Library,G,Gate
+Main Library,G,Elevator
 Main Library,G,Cafe
+Main Library,1,Elevator
+Main Library,1,Study Space

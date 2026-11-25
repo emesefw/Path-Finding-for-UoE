@@ -47,7 +47,7 @@ class Display:
         image = image.resize(new_size, Image.Resampling.LANCZOS) # Resampling.NEAREST, Resampling.BOX, Resampling.BILINEAR, Resampling.HAMMING, Resampling.BICUBIC, Resampling.LANCZOS, Resampling.MKS2013, or Resampling.MKS2021
         image_out = ImageTk.PhotoImage(image)
 
-        print(f'{scalling_command} is multiplied by sf: {scale}')
+        #print(f'{scalling_command} is multiplied by sf: {scale}') # DEBUG
         return image_out
 
     def find_center(self, image_width, image_height) -> tuple:
@@ -89,7 +89,6 @@ class Menu(Display):
         self.show(canvas, window_width, window_height)
 
     def update(self):
-        '''combine the list here'''
         self.list_o[0] = fh.read_list(field=0, choice=0, reference=self.user_input)
         self.list_o[1] = fh.read_list(field=1, choice=0, reference=self.user_input)
         self.list_o[2] = fh.read_list(field=2, choice=0, reference=self.user_input)
@@ -119,7 +118,7 @@ class Menu(Display):
     def on_selection_d_0(self, event):
         self.destination[1].set(self.default_text[1][1])
         self.destination[2].set(self.default_text[1][2])
-        
+
     def on_selection_d_1(self, event):
         self.destination[2].set(self.default_text[1][2])
 

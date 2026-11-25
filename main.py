@@ -1,5 +1,5 @@
 import tkinter as tk
-import display
+import display, generate
 
 # System setup variables
 root: tk.Tk
@@ -17,6 +17,7 @@ mouse_y: int = 0
 # System functionality variables
 state: int = 1
 menu: display.Menu
+gen: generate.Generate
 projector: display.Projector
 
 # Entry point
@@ -55,14 +56,17 @@ def update(root: tk.Tk):
             menu.show(canvas, window_width, window_height)
             menu.read_input() # check for user input
             if menu.end_state == True:
-                state = 3
+                state = 2
                 menu.hide(canvas) # hide the menu from previous state
+                print(menu.user_input) # DEBUG
         case 2:
             '''generate plan'''
-            print("state 2")
+            gen.generate_checkpoints(menu.user_input)
+            print(gen.high_level_plan) # DEBUG
+            state = 3
+
         case 3:
             '''execution'''
-            #print("state 3") # DEBUG
             projector.show(canvas)
             projector.update(canvas, mouse_x, mouse_y)
         case 4:
@@ -75,9 +79,10 @@ def update(root: tk.Tk):
 
 def init():
     '''initialise variables'''
-    global canvas, window_width, window_width, menu, projector
+    global canvas, window_width, window_width, menu, gen, projector
 
     menu = display.Menu(canvas, window_width, window_height)
+    gen = generate.Generate()
     projector = display.Projector(canvas, window_width, window_height)
     menu.hide(canvas)
     projector.hide(canvas)
