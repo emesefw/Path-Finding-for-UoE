@@ -62,7 +62,7 @@ def update(root: tk.Tk):
         case 2:
             '''generate plan'''
             gen.generate_checkpoints(menu.user_input)
-            print(gen.high_level_plan) # DEBUG
+            print(gen.checkpoints) # DEBUG
             state = 3
 
         case 3:

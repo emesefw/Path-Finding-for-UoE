@@ -4,7 +4,7 @@ fh = handler.FileHandler()
 
 class Generate:
     def __init__(self):
-        self.high_level_plan: list = []
+        self.checkpoints: list = []
         '''
         for the task of this class:
         1. break the command in to checkpoints
@@ -91,5 +91,5 @@ class Generate:
                 #print(command) # DEBUG
 
         #print(out) # DEBUG
-        self.high_level_plan = out
+        self.checkpoints = out
 
